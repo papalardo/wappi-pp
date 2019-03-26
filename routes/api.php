@@ -21,6 +21,7 @@ Route::post('/customer', function (Request $request) {
 
 Route::get('/sendMessage/{id}', function($id) {
     $user = \App\Models\Customer::with('dialog_config')->find($id);
+    $user->dialog_config()->update(['type' => 'confirmation_of_attendance']);
     $user->notify(new \App\Notifications\ConfirmationOfAttendance());
     return response()->json([
         'message' => 'Notificação enviada!'
