@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->string('name');
             $table->string('last_name');
             $table->string('email')->nullable();
-            $table->integer('phone')->nullable();
+            $table->string('phone')->nullable();
             $table->integer('chat_provider_id')->nullable();
             $table->string('dialog_type')->nullable();
             $table->timestamps();
