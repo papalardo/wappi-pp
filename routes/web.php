@@ -14,7 +14,7 @@
 use Illuminate\Http\Request;
 
 
-Route::get('/', function () {
+Route::post('/user', function (Request $request) {
     // $user = \App\Models\Customer::create([
     //     'name' => 'Fábio',
     //     'last_name' =>  'Vaz',
