@@ -33,18 +33,20 @@ use App\Notifications\AttendanceErrorResponse;
 
 Route::any('/webhook', function(Request $request) {
 
-    \Log::info($request->all());
-
     $userPhone = explode('@', $request->input('messages.0.author'))[0];
     $message = $request->input('messages.0.body');
     $user = App\Models\Customer::where('phone', $userPhone)->first();
     if($user && $user->dialog_config) {
+        // Preparar string
+        $message = preg_replace("/&([a-z])[a-z]+;/i", "$1", htmlentities(trim($message)));
+        $message = strtolower($message);
+
         switch($user->dialog_config->type) {
             case 'confirmation_of_attendance': 
-                if($message == 'sim' || $message == 'Sim') {
+                if(strpos($message, 'sim') > -1) {
                     $user->notify(new ConfirmationOfAttendanceResponse('Perfeito, nos vemos lá'));
                     $user->dialog_config()->update(['type' => 'commom_dialog']);
-                } elseif ($message == 'não' || $message == 'Não') {
+                } elseif (strpos($message, 'nao') > -1) {
                     $user->notify(new ConfirmationOfAttendanceResponse('Ok, tudo bem!'));
                     $user->dialog_config()->update(['type' => 'commom_dialog']);
                 } else {
