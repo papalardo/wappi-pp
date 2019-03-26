@@ -16,13 +16,13 @@ use Illuminate\Http\Request;
 Route::post('/customer', function (Request $request) {
     $user = \App\Models\Customer::create($request->all());
     $user->dialog_config()->create(['type' => 'confirmation_of_attendance']);
-    return $response()->json($user, 201);
+    return response()->json($user, 201);
 });
 
 Route::get('/sendMessage/{id}', function($id) {
     $user = \App\Models\Customer::with('dialog_config')->find($id);
     $user->notify(new \App\Notifications\ConfirmationOfAttendance());
-    return $response->json([
+    return response()->json([
         'message' => 'Notificação enviada!'
     ]);
 });
