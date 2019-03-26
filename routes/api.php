@@ -31,9 +31,9 @@ use App\Notifications\ConfirmationOfAttendanceResponse;
 use App\Notifications\AttendanceErrorResponse;
 
 Route::any('/webhook', function(Request $request) {
-    // return;
 
-    // \Log::info($request->all());
+    \Log::info($request->all());
+
     $userPhone = explode('@', $request->input('messages.0.author'))[0];
     $message = $request->input('messages.0.body');
     $user = App\Models\Customer::where('phone', $userPhone)->first();
