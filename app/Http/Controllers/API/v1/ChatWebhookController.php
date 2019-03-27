@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\v1;
 
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\Controller;
+
 use App\Notifications\ConfirmationOfAttendanceResponse;
 use App\Notifications\AttendanceErrorResponse;
 
@@ -42,9 +44,12 @@ class ChatWebhookController extends Controller
         ]);
     }
 
-    public function messages($chatId) {
-        $client = new GuzzleHttp\Client();
-        $res = $client->request('GET', config('chatapi.api_url') . '/messages?token=' . config('chatapi.token') . '&chatId=' . $chatId);
+    public function messages($chatId = '556181813368@c.us') {
+        $client = new \GuzzleHttp\Client();
+        $url = config('services.chatapi')['api_url'] . '/messages?token=' . config('services.chatapi')['token'] . '&chatId=' . $chatId;
+        // return $url;
+        $res = $client->request('GET', $url);
+        return response()->json($res);
         \Log::info($res);
     }
 }

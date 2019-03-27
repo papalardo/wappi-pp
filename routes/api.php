@@ -28,7 +28,8 @@ Route::get('/sendMessage/{id}', function($id) {
     ]);
 });
 
-Route::post('webhook', 'v1/ChatWebhookController@main');
+Route::post('webhook', 'v1\ChatWebhookController@main');
+Route::get('webhook/messages', 'v1\ChatWebhookController@messages');
 
 Route::group([
         'prefix' => 'auth', 
