@@ -45,7 +45,7 @@ return [
     ],
 
     'chatapi' => [
-        'token' => env('CHATAPI_TOKEN', ''),
-        'api_url' => env('CHATAPI_URL', ''),
+        'token' => env('CHATAPI_TOKEN', '8chafcox2h7dyltm'),
+        'api_url' => env('CHATAPI_URL', 'https://eu31.chat-api.com/instance32698/'),
     ],
 ];

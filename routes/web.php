@@ -27,7 +27,8 @@ Route::post('/user', function (Request $request) {
     return $user;
 });
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
+
 
