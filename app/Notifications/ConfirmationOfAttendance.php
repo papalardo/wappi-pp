@@ -54,7 +54,7 @@ class ConfirmationOfAttendance extends Notification
         return (new ChatAPIMessage)
                     ->to($notifiable->phone) // your user phone
                     // ->file('/path/to/file','My Photo.jpg')
-                    ->content("Olá, {$notifiable->name}. Boa noite. \nSó passei pra lembrar que amanhã amanhã tem expediente. Você poderá ir ? Respoda apenas *[sim]* ou *[não]*");
+                    ->content("Olá, {$notifiable->name}. \nSó passei pra lembrar que você tem um compromisso amanhã. \nVocê poderá ir ? \nDigite: *1* caso vá ou *2* caso não poderá ir..");
     }
 
     /**

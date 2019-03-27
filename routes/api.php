@@ -28,38 +28,7 @@ Route::get('/sendMessage/{id}', function($id) {
     ]);
 });
 
-use App\Notifications\ConfirmationOfAttendanceResponse;
-use App\Notifications\AttendanceErrorResponse;
-
-Route::any('/webhook', function(Request $request) {
-
-    $userPhone = explode('@', $request->input('messages.0.author'))[0];
-    $message = $request->input('messages.0.body');
-    $user = App\Models\Customer::where('phone', $userPhone)->first();
-    if($user && $user->dialog_config) {
-        // Preparar string
-        $message = preg_replace("/&([a-z])[a-z]+;/i", "$1", htmlentities(trim($message)));
-        $message = strtolower($message);
-
-        switch($user->dialog_config->type) {
-            case 'confirmation_of_attendance': 
-                if(strpos($message, 'sim') > -1) {
-                    $user->notify(new ConfirmationOfAttendanceResponse('Perfeito, nos vemos lá'));
-                    $user->dialog_config()->update(['type' => 'commom_dialog']);
-                } elseif (strpos($message, 'nao') > -1) {
-                    $user->notify(new ConfirmationOfAttendanceResponse('Ok, tudo bem!'));
-                    $user->dialog_config()->update(['type' => 'commom_dialog']);
-                } else {
-                    $user->notify(new AttendanceErrorResponse());
-                }
-        }
-        // \Log::info($user->dialog_config->type);
-        // if()
-    }
-    return response()->json([
-        'message' => 'Salvo'
-    ]);
-});
+Route::post('webhook', 'ChatWebhookController@main');
 
 Route::group([
         'prefix' => 'auth', 

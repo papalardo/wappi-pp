@@ -54,7 +54,7 @@ class AttendanceErrorResponse extends Notification
         return (new ChatAPIMessage)
                     ->to($notifiable->phone) // your user phone
                     // ->file('/path/to/file','My Photo.jpg')
-                    ->content("Não entendi, responda por favor com *[sim]* ou *[não]*");
+                    ->content("Não entendi, escreva uma das opções listadas.");
     }
 
     /**
