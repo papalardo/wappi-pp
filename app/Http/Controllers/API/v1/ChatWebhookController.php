@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API\v1;
 
 use Illuminate\Http\Request;
-
+use App\MyClasses\Dialog;
 use App\Http\Controllers\Controller;
-
+use App\Models\Customer;
 use App\Notifications\ConfirmationOfAttendanceResponse;
 use App\Notifications\AttendanceErrorResponse;
 
@@ -13,47 +13,51 @@ class ChatWebhookController extends Controller
 {
     public function main(Request $request) {
 
+        if($request->input('messages.0.fromMe')) return;
+
+        $message = $request->input('messages.0.body');
+        $userPhone = explode('@', $request->input('messages.0.author'))[0];
+
         $res = json_decode($this->messages($request->input('messages.0.chatId')));
         
-        \Log::info(count($res->messages));
-        
         if(count($res->messages) <=1) {
-            $userPhone = explode('@', $request->input('messages.0.author'))[0];
             $user = \App\Models\Customer::create([
                 'name' => 'guest',
                 'last_name' => 'guest',
-                'email' => 'dlsap@dlsap.com',
+                'email' => 'guest@guest.com',
                 'phone' => $userPhone,
             ]);
-            $user->notify(new ConfirmationOfAttendanceResponse("Olá. Aqui é o assitente virtual do Pablo.\n*Você quer falar sobre os aluguéis na Vila Planalto ?*\n_Digite:_ \n*1* - Para sim e *2* - Para não"));
+            $user->dialog_config()->updateOrCreate(['type' => 'commom_dialog']);
         }
         
-        return;
+        $user = Customer::where('phone', $userPhone)->first();
         
-        if($request->input('messages.0.fromMe')) return;
-        // if($request->input('messages.0.chatId'))
-
-        $userPhone = explode('@', $request->input('messages.0.author'))[0];
-        $message = $request->input('messages.0.body');
-        $user = App\Models\Customer::where('phone', $userPhone)->first();
         if($user && $user->dialog_config) {
-            // Preparar string
-            $message = preg_replace("/&([a-z])[a-z]+;/i", "$1", htmlentities(trim($message)));
-            $message = strtolower($message);
-    
+            
+            $dialog = (new Dialog($message))
+                ->setSession($userPhone)
+                ->send();
+
+            if($dialog->getIntent() == 'apartment_rentals') {
+                $user->notify(new ConfirmationOfAttendanceResponse($dialog->getBody()));
+            }
+
             switch($user->dialog_config->type) {
                 case 'confirmation_of_attendance': 
-                    if(strpos($message, 'sim') > -1 || $message == 1) {
-                        $user->notify(new ConfirmationOfAttendanceResponse("Perfeito 🎉.\nJá confirmei aqui na agenda sua presença!"));
-                        $user->dialog_config()->update(['type' => 'commom_dialog']);
-                    } elseif (strpos($message, 'nao') > -1 || $message == 2) {
-                        $user->notify(new ConfirmationOfAttendanceResponse('Ok.. 😞, talvez da próxima então.'));
-                        $user->dialog_config()->update(['type' => 'commom_dialog']);
-                    } else {
-                        $user->notify(new AttendanceErrorResponse());
+                    switch($dialog->getIntent()) {
+                        case 'confirmation_of_attendance_yes':
+                            $user->dialog_config()->update(['type' => 'commom_dialog']);
+                        case 'confirmation_of_attendance_no':
+                            $user->dialog_config()->update(['type' => 'commom_dialog']);
+                        default:
+                            $user->notify(new ConfirmationOfAttendanceResponse($dialog->getBody()));
+                            break;
                     }
+                // case 'commom_dialog':
+                //     $user->notify(new ConfirmationOfAttendanceResponse($dialog->getBody()));
             }
         }
+
         return response()->json([
             'message' => 'Salvo'
         ]);

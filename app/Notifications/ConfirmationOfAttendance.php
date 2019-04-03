@@ -21,7 +21,15 @@ class ConfirmationOfAttendance extends Notification
      */
     public function __construct()
     {
-        //
+        
+    }
+
+    public function getMessage($phone)
+    {
+        $dialog = (new \App\MyClasses\Dialog('confirmation_of_attendance'))
+            ->setSession($phone)
+            ->send();
+        return (string) $dialog->getBody();
     }
 
     /**
@@ -54,7 +62,7 @@ class ConfirmationOfAttendance extends Notification
         return (new ChatAPIMessage)
                     ->to($notifiable->phone) // your user phone
                     // ->file('/path/to/file','My Photo.jpg')
-                    ->content("Olá, {$notifiable->name}. \nSó passei pra lembrar que você tem um compromisso amanhã. \nVocê poderá ir ? \nDigite: *1* caso vá ou *2* caso não poderá ir..");
+                    ->content($this->getMessage($notifiable->phone));
     }
 
     /**

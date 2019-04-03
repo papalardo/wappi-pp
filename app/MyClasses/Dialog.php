@@ -15,17 +15,22 @@ class Dialog {
     private $sessionId = '123456';
     private $fulfilmentText;
     private $languageCode = 'pt-BR';
+    private $intent;
 
     function __construct($text) {
-        $this->init($text);
+        // $this->init($text);
+        $this->text = $text;
     }
 
-    protected function init($text) {
+    public function send() {
+        $text = $this->text;
+
             // new session
         $test = array('credentials' => $this->credentials());
         $sessionsClient = new SessionsClient($test);
-        $session = $sessionsClient->sessionName($this->projectId, $this->sessionId ?: uniqid());
+        $session = $sessionsClient->sessionName($this->projectId, $this->sessionId ?? uniqid());
         // printf('Session path: %s' . PHP_EOL, $session);
+        \Log::info('Session => ' . $session);
 
         // create text input
         $textInput = new TextInput();
@@ -45,8 +50,10 @@ class Dialog {
         $confidence = $queryResult->getIntentDetectionConfidence();
         $fulfilmentText = $queryResult->getFulfillmentText();
 
-        var_dump($displayName);
-        $this->fulfilmentText = $fulfilmentText;
+        // var_dump($displayName);
+        $this->intent = (string) $displayName;
+
+        $this->fulfilmentText = (string) $fulfilmentText;
         // output relevant info
         // print(str_repeat("=", 20) . PHP_EOL);
         // printf('Query text: %s' . PHP_EOL, $queryText);
@@ -59,8 +66,19 @@ class Dialog {
         return $this;
     }
 
+    public function setSession($session)
+    {
+        $this->sessionId = $session;
+        return $this;
+    }
+
+    public function getIntent() 
+    {
+        return $this->intent;
+    }
+
     public function getBody() {
-        return $this->fulfilmentText;
+        return (string) $this->fulfilmentText;
     }
 
     protected function credentials() {
